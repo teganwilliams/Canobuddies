@@ -1,30 +1,35 @@
 # stats and plots for field course 2023
 
-library(tidyr)  
-library(dplyr)
-library(ggplot2)
-library(readr)
+# packages ----
+library(tidyverse)  
 library(gridExtra)
-library(skimr)
 library(readxl)
 library(ggeffects)
 library(MuMIn)
 library(sjPlot)   
 library(insight)
 library(httr)
-
-# variogram and spatial autocorrelation
-
 library (geosphere)
 library(ape)
-library(readxl)
 library(geostats)
 library(nlme)
+
+# data - change type to csv? ----
+
 data_final <- read_excel("data_final.xlsx")
 View(data_final)
 
+data_final$Site <- as.character(data_final$Site)
+
+data_final2 <- data_final %>%
+  mutate(forest_type = if_else(.$pine_percentage == "100", 'pine', 'mixed'))
+
+# variogram and spatial autocorrelation ----
+
 spatial <- distm(fun = distGeo, x = data_final [,c ("lat", "long")] ) 
 Moran.I(x = data_final$exp_shannon, spatial  )
+
+# p value below 0.05 - we have spatial autocorrelation
 
 # could also see spa when points were colored according to sites.
 
@@ -35,25 +40,13 @@ semivariogram(x = data_final$lat, y = data_final$long, z = data_final$exp_shanno
 
 # change x to meters?
 
-
-data_final <- read_excel("data_final.xlsx")
-View(data_final)
-
-data_final$Site <- as.character(data_final$Site)
-
-data_final2 <- data_final %>%
-  mutate(forest_type = if_else(.$pine_percentage == "100", 'pine', 'mixed'))
-
-
 # models ----
 
 # poly - not using this was only working with the wrong data
-mod_lai <- lm(exp_shannon~poly(LAI, 3), data = data_final2)
-summary(mod_lai)
+mod_poly <- lm(exp_shannon~poly(LAI, 3), data = data_final2)
+summary(mod_poly)
 
-# other models
-
-data_final2$soil_texture<- as.factor(data_final$soil_texture)
+# other models - taking into account sp. ac
 
 mod_null <- gls( exp_shannon ~ 1, data = data_final2, correlation = corSpatial(form = ~ lat + long, 
                                                                                  nugget = T ) )
@@ -61,42 +54,48 @@ mod_lai1 <-  gls( exp_shannon ~ LAI, data = data_final2, correlation = corSpatia
                                                                                  nugget = T ) )
 mod_forest <- gls( exp_shannon ~ forest_type, data = data_final2, correlation = corSpatial(form = ~ lat + long, 
                                                                                    nugget = T ) )
-mod_lai2 <- gls( exp_shannon ~ LAI + forest_type, data = data_final2, correlation = corSpatial(form = ~ lat + long, 
+mod_lai_forest <- gls( exp_shannon ~ LAI + forest_type, data = data_final2, correlation = corSpatial(form = ~ lat + long, 
                                                                                  nugget = T ) )
-mod_lai4 <- gls( exp_shannon ~ LAI * forest_type, data = data_final2, correlation = corSpatial(form = ~ lat + long, nugget = T ) )
+mod_lai_forest_interaction <- gls( exp_shannon ~ LAI * forest_type, data = data_final2, correlation = corSpatial(form = ~ lat + long, nugget = T ) )
+
 mod_soil_forest <- gls( exp_shannon ~ LAI + forest_type+ soil_texture, data = data_final2, correlation = corSpatial(form = ~ lat + long, nugget = T ) )
+
 mod_texture_lai <- gls (exp_shannon ~ LAI + soil_texture,data = data_final2, correlation = corSpatial(form = ~ lat + long, nugget = T ) )
-mod_pH <- gls( exp_shannon ~ soil_ph, data = data_final2, correlation = corSpatial(form = ~ lat + long, 
-                                                                                               nugget = T ) )
-library(performance)
-mod_texture <- gls (exp_shannon ~  soil_texture,data = data_final2, correlation = corSpatial(form = ~ lat + long, nugget = T ) )
+
+mod_pH <- gls( exp_shannon ~ soil_ph, data = data_final2, correlation = corSpatial(form = ~ lat + long, nugget = T ) )
+
+mod_texture <- gls (exp_shannon ~ soil_texture, data = data_final2, correlation = corSpatial(form = ~ lat + long, nugget = T ) )                                                                                             
+
+
  # use likelihood ratio test to see which model is better bc aics are so similar                                                                                                                                  
- # change : to star to see aic for that
-summary(mod_lai4)
+ # change : to star and back to see aic for that
+
+AICc(mod_null, mod_lai1, mod_forest, mod_lai_forest, mod_lai_forest_interaction,
+     mod_texture_lai,  mod_soil_forest, mod_texture, mod_pH)
+
+summary(mod_lai_forest_interaction)
 summary(mod_forest)
-summary(mod_lai2)
+summary(mod_lai_forest)
 summary(mod_lai1)
 
-
-
-
-AICc(mod_null, mod_lai1, mod_forest, mod_lai2, mod_texture_lai, mod_texture, mod_lai4, mod_pH)
 tab_model(mod_lai1)
-tab_model(mod_lai1, file = "mod_lai1.doc")
+# tab_model(mod_lai1, file = "mod_lai1.doc")
+
+anova(mod_lai1) # to get the F statistic
+
 (boxplot <- ggplot(data_final2, aes(x = forest_type, y = LAI))+ geom_boxplot())
 
 # model with only lai is best
 
 # residuals and how much does forest type take away - not using this
 
-mod_res <- lm(exp_shannon ~ forest_type, data = data_final2)
-resids <- residuals(mod_res)
-mod_lai3 <- lm(resids ~ LAI, data = data_final2)
-summary(mod_lai3)
+mod_for_res <- lm(exp_shannon ~ forest_type, data = data_final2)
+resids <- residuals(mod_for_res)
+mod_residsonly <- lm(resids ~ LAI, data = data_final2)
+summary(mod_residsonly)
 
-mod_lm <- lm(resids ~LAI, data=data_final2)
-summary(mod_lm)
-anova(mod_lai1) # to get the F statistic
+# but they explain the same thing in the same way still so makes sense
+
 
 # Extract the prediction data frame from best model
 
@@ -115,11 +114,10 @@ colours = c("#BF3EFF", "#4ecb50") # new dataframe for colors
   geom_point(data = data_final2,                      # adding the raw data (scaled values)
              aes(x = LAI, y = exp_shannon,  colour = forest_type), size =2) +  
   scale_colour_manual(values = colours)+
- 
- #  geom_smooth(data=data_final2, method ="lm", aes(x = LAI, y = exp_shannon), se=FALSE, colour = "red") +
+ #  geom_smooth(data=data_final2, method = "lm", aes(x = LAI, y = exp_shannon), se=FALSE, colour = "red") +
   theme_classic() +
   ylab("Exponential Shannon's Diversity Index\n") +                             
-  xlab("\nLAI")  +
+  xlab("\nLeaf Area Index")  +
   labs(color = "Forest type\n")+
   theme(axis.text.x = element_text(size = 15),
         axis.text.y = element_text(size = 15),
