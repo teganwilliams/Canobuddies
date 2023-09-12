@@ -9,8 +9,30 @@ library(skimr)
 library(readxl)
 library(ggeffects)
 
+# variogram and spatial autocorrelation
 
-data_final <- read_excel("fieldcourse/data_final.xlsx")
+library (geosphere)
+library(ape)
+library(readxl)
+library(geostats)
+library(nlme)
+data_final <- read_excel("data_final.xlsx")
+View(data_final)
+
+spatial <- distm(fun = distGeo, x = data_final [,c ("lat", "long")] ) 
+Moran.I(x = data_final$exp_shannon, spatial  )
+
+# could also see spa when points were colored according to sites.
+
+semivariogram(x = data_final$lat, y = data_final$long, z = data_final$exp_shannon)
+
+# lag: how much the signal is lagging according to distance (?)
+# x not m bc coordinates are in decimal degrees
+
+# change x to meters?
+
+
+data_final <- read_excel("data_final.xlsx")
 View(data_final)
 
 data_final$Site <- as.character(data_final$Site)
@@ -48,7 +70,7 @@ summary(mod_lai4)
 summary(mod_forest)
 summary(mod_lai2)
 
-AIC(mod_null, mod_lai1, mod_forest, mod_lai2, mod_lai4, mod_texture_lai, mod_texture)
+AIC(mod_null, mod_lai1, mod_forest, mod_lai2, mod_texture_lai, mod_texture)
 
 # model with only lai is best
 
@@ -72,7 +94,7 @@ colours = c("#BF3EFF", "#4ecb50") # new dataframe for colors
 
 # final plot ----
 
-ggplot(pred.mm) +
+(final_plot <- ggplot(pred.mm) +
   geom_line(aes(x = x, y = predicted, shape = "model predictions", linetype = "model predictions"),
             colour = "#FF8C00", size = 1) + 
   scale_linetype_manual('', values =c("model predictions" = 1))+
@@ -82,14 +104,17 @@ ggplot(pred.mm) +
  
  #  geom_smooth(data=data_final2, method ="lm", aes(x = LAI, y = exp_shannon), se=FALSE, colour = "red") +
   theme_classic() +
-  ylab("Shannons Diversity Index\n") +                             
+  ylab("Exponential Shannon's Diversity Index\n") +                             
   xlab("\nLAI")  +
   labs(color = "Forest type\n")+
   theme(axis.text.x = element_text(size = 10),
         axis.text.y = element_text(size = 10),
         axis.title = element_text(size = 10, face = "plain"),                      
         panel.grid = element_blank(), 
-        plot.margin = unit(c(1,1,1,1), units = , "cm"))
+        plot.margin = unit(c(1,1,1,1), units = , "cm")))
+
+ggsave("final_plot.png", width = 10, height = 5, dpi = 300)
+
 
 # other plots ----
 
