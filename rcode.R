@@ -10,6 +10,7 @@ library(ggplot2)
 library(readr)
 library(gridExtra)
 library(skimr)
+library(MuMIn)
 library(ggeffects) # to visualise predictions
 
 # Data wrangling ----
@@ -36,9 +37,9 @@ summary(mod_text)
 summary(mod_lai2)
 summary(mod_lai4)
 
-AIC(mod_null, mod_lai1, mod_forest,mod_pH, mod_text, mod_lai2, mod_lai4) # comparing models
-# mod_lai1 has the lowest AIC
-# both pH and texture have a higher AIC than the null model - they have very low explanatory power
+AICc(mod_null, mod_lai1, mod_forest,mod_pH, mod_text, mod_lai2, mod_lai4) # comparing models
+# mod_lai1 has the lowest AICc
+# both pH and texture have a higher AICc than the null model - they have very low explanatory power
 
 # polynomial models that we are no longer using
 # mod_lai <- lm(exp_shannon~poly(LAI, 3), data = data_final2)
