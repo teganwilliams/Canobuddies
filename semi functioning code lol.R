@@ -8,6 +8,10 @@ library(gridExtra)
 library(skimr)
 library(readxl)
 library(ggeffects)
+library(MuMIn)
+library(sjPlot)   
+library(insight)
+library(httr)
 
 # variogram and spatial autocorrelation
 
@@ -59,18 +63,24 @@ mod_forest <- gls( exp_shannon ~ forest_type, data = data_final2, correlation = 
                                                                                    nugget = T ) )
 mod_lai2 <- gls( exp_shannon ~ LAI + forest_type, data = data_final2, correlation = corSpatial(form = ~ lat + long, 
                                                                                  nugget = T ) )
-mod_lai4 <- gls( exp_shannon ~ LAI * soil_texture, data = data_final2, correlation = corSpatial(form = ~ lat + long, nugget = T ) )
-
+mod_lai4 <- gls( exp_shannon ~ LAI * forest_type, data = data_final2, correlation = corSpatial(form = ~ lat + long, nugget = T ) )
+mod_soil_forest <- gls( exp_shannon ~ LAI + forest_type+ soil_texture, data = data_final2, correlation = corSpatial(form = ~ lat + long, nugget = T ) )
 mod_texture_lai <- gls (exp_shannon ~ LAI + soil_texture,data = data_final2, correlation = corSpatial(form = ~ lat + long, nugget = T ) )
+mod_pH <- gls( exp_shannon ~ soil_ph, data = data_final2, correlation = corSpatial(form = ~ lat + long, 
+                                                                                               nugget = T ) )
 
 mod_texture <- gls (exp_shannon ~  soil_texture,data = data_final2, correlation = corSpatial(form = ~ lat + long, nugget = T ) )
-                                                                                                                                   
+ # use likelihood ratio test to see which model is better bc aics are so similar                                                                                                                                  
  # change : to star to see aic for that
 summary(mod_lai4)
 summary(mod_forest)
 summary(mod_lai2)
+summary(mod_lai1)
 
-AIC(mod_null, mod_lai1, mod_forest, mod_lai2, mod_texture_lai, mod_texture)
+AICc(mod_null, mod_lai1, mod_forest, mod_lai2, mod_texture_lai, mod_texture, mod_lai4, mod_pH)
+tab_model(mod_lai1)
+tab_model(mod_lai1, file = "mod_lai1.doc")
+(boxplot <- ggplot(data_final2, aes(x = forest_type, y = LAI))+ geom_boxplot())
 
 # model with only lai is best
 
