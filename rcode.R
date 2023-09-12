@@ -1,7 +1,7 @@
-# Stats fieldcourse
+# Stats Fieldcourse
 # Project canobuddies
-# How does light availability affect understorey vegetation?
-# Else, Rebecca, Kinga, Tegan, Luisa, Thomas, Hannah
+# How does light availability affect understory vegetation?
+# Luisa, Rebecca, Kinga, Else, Thomas, Hannah, Tegan
 
 #Library ----
 library(tidyr)
