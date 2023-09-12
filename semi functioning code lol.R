@@ -68,7 +68,7 @@ mod_soil_forest <- gls( exp_shannon ~ LAI + forest_type+ soil_texture, data = da
 mod_texture_lai <- gls (exp_shannon ~ LAI + soil_texture,data = data_final2, correlation = corSpatial(form = ~ lat + long, nugget = T ) )
 mod_pH <- gls( exp_shannon ~ soil_ph, data = data_final2, correlation = corSpatial(form = ~ lat + long, 
                                                                                                nugget = T ) )
-
+library(performance)
 mod_texture <- gls (exp_shannon ~  soil_texture,data = data_final2, correlation = corSpatial(form = ~ lat + long, nugget = T ) )
  # use likelihood ratio test to see which model is better bc aics are so similar                                                                                                                                  
  # change : to star to see aic for that
@@ -76,6 +76,13 @@ summary(mod_lai4)
 summary(mod_forest)
 summary(mod_lai2)
 summary(mod_lai1)
+check_model(mod_lai1)
+base::summary(mod_lai1)
+summary(mod_lai1)
+
+performance(mod_lai1)
+detach(package:performance, unload = T)
+
 
 AICc(mod_null, mod_lai1, mod_forest, mod_lai2, mod_texture_lai, mod_texture, mod_lai4, mod_pH)
 tab_model(mod_lai1)
@@ -93,6 +100,7 @@ summary(mod_lai3)
 
 mod_lm <- lm(resids ~LAI, data=data_final2)
 summary(mod_lm)
+anova(mod_lai1) # to get the F statistic
 
 # Extract the prediction data frame from best model
 
