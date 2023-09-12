@@ -1,4 +1,6 @@
-## We are the Canobuddies! :evergreen_tree:
+## The Canobuddies! :evergreen_tree:
+*by Luisa Dickenmann, Rebecca Hies, Kinga Kaszap, Thomas Pendlebury, Else Radeloff, Hannah Udall, and Tegan Williams*
+
 Welcome to our github page, where you can find our project code (R) and other useful information. 
 
 ### Project description
