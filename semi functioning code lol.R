@@ -76,12 +76,8 @@ summary(mod_lai4)
 summary(mod_forest)
 summary(mod_lai2)
 summary(mod_lai1)
-check_model(mod_lai1)
-base::summary(mod_lai1)
-summary(mod_lai1)
 
-performance(mod_lai1)
-detach(package:performance, unload = T)
+
 
 
 AICc(mod_null, mod_lai1, mod_forest, mod_lai2, mod_texture_lai, mod_texture, mod_lai4, mod_pH)
