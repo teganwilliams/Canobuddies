@@ -16,6 +16,6 @@ To do so, we sampled 30 quadrats, accross 6 different sites in the Cairngorms. A
 
 The data collected allowed us to determine LAI after binarising our images and calculating the pixels of dark aka canopy,  and also diversity from our richness and abundance data using Shannon's diversity index. 
 
-Finally, we analysed our data in R (version 2023.06.1+524), the code for which can be found [here](/Rcode). 
+Finally, we analysed our data in R (version 2023.06.1+524), the code for which can be found [here](/rcode). 
 
 If you have any questions for us, feel free to get in touch: teganwilliams@me.com
