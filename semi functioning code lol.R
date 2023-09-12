@@ -107,13 +107,15 @@ colours = c("#BF3EFF", "#4ecb50") # new dataframe for colors
   ylab("Exponential Shannon's Diversity Index\n") +                             
   xlab("\nLAI")  +
   labs(color = "Forest type\n")+
-  theme(axis.text.x = element_text(size = 10),
-        axis.text.y = element_text(size = 10),
-        axis.title = element_text(size = 10, face = "plain"),                      
+  theme(axis.text.x = element_text(size = 15),
+        axis.text.y = element_text(size = 15),
+        axis.title = element_text(size = 15, face = "plain"),                      
         panel.grid = element_blank(), 
+        legend.text=element_text(size = 15),
+        legend.title = element_text(size = 16),
         plot.margin = unit(c(1,1,1,1), units = , "cm")))
 
-ggsave("final_plot.png", width = 10, height = 5, dpi = 300)
+ggsave("final_plot.png", width = 9, height = 6, dpi = 300)
 
 
 # other plots ----
