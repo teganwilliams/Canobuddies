@@ -1,7 +1,7 @@
 ## The Canobuddies! :evergreen_tree:
 *by Luisa Dickenmann, Rebecca Hies, Kinga Kaszap, Thomas Pendlebury, Else Radeloff, Hannah Udall, and Tegan Williams*
 
-Welcome to our github page, where you can find our [data analysis code](/rcode.R) (R), [references](/references) used and other useful information. 
+Welcome to our github page, where you can find our [data analysis code](/Code) (R), [references](/references) used and other useful information. 
 
 ### Project description
 We investigated the effect of canopy structure on understory plant diversity in pure pine and mixed sitka plantations in the Scottish Cairngorms. Our three main research questions are as follows:
